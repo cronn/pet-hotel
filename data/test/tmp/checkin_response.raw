@@ -1,0 +1,12 @@
+{
+  "pets" : [ {
+    "type" : "Dog",
+    "id" : 1,
+    "name" : "Io",
+    "chipNumber" : 12345
+  }, {
+    "type" : "Fish",
+    "id" : 2,
+    "name" : "Blub"
+  } ]
+}
