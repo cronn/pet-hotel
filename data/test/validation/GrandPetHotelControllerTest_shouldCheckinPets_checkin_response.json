@@ -1,12 +1,14 @@
 {
   "pets" : [ {
     "type" : "Dog",
-    "id" : 1,
+    "id" : 2,
     "name" : "Io",
-    "chipNumber" : 12345
+    "chipNumber" : 12345,
+    "ownerId" : 1
   }, {
     "type" : "Fish",
-    "id" : 2,
-    "name" : "Blub"
+    "id" : 3,
+    "name" : "Blub",
+    "ownerId" : 1
   } ]
 }

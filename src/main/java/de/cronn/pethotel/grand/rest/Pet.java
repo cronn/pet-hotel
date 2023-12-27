@@ -12,4 +12,6 @@ public interface Pet {
   long id();
 
   String name();
+
+  long ownerId();
 }

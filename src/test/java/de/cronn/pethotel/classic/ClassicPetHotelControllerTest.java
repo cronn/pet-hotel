@@ -8,11 +8,18 @@ import de.cronn.pethotel.classic.rest.GetPetsResponse;
 import de.cronn.pethotel.classic.rest.PetType;
 import java.util.List;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public class ClassicPetHotelControllerTest extends IntegrationTestBase {
+
+  @BeforeEach
+  void resetControllerState() {
+    ClassicPetHotelController.reset();
+  }
+
   @Test
   void shouldCheckinPets() throws JsonProcessingException {
     CheckinRequest request = new CheckinRequest(List.of(checkinDogIo(), checkinFishBlub()));

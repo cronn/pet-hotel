@@ -23,6 +23,10 @@ public class ClassicPetHotelController implements ClassicPetHotel {
     return petId.addAndGet(1);
   }
 
+  static void reset() {
+    petId.set(0);
+  }
+
   @Override
   @PostMapping("classic/checkin")
   public GetPetsResponse checkin(@RequestBody @Valid CheckinRequest request) {

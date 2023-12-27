@@ -14,17 +14,40 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class GrandPetHotelController implements GrandPetHotel {
-  private static final AtomicLong petId = new AtomicLong();
+  private static final AtomicLong currentId = new AtomicLong();
   private static final Map<Long, Pet> petHotel = new ConcurrentHashMap<>();
+  private static final Map<Long, Owner> owners = new ConcurrentHashMap<>();
 
-  private static long getNextPetId() {
-    return petId.addAndGet(1);
+  private static long getNextId() {
+    return currentId.addAndGet(1);
+  }
+
+  static void reset() {
+    currentId.set(0);
   }
 
   @Override
   @PostMapping("/checkin")
   public GetPetsResponse checkin(@RequestBody @Valid CheckinRequest request) {
-    return new GetPetsResponse(checkinPets(request.pets()));
+    long ownerId = createOrGetOwner(request.person());
+    return new GetPetsResponse(checkinPets(ownerId, request.pets()));
+  }
+
+  private long createOrGetOwner(OwnerData person) {
+    return switch (person) {
+      case OwnerReference ownerRef -> getOwner(ownerRef).id();
+      case CheckinOwnerData ownerData -> createAndSaveOwner(ownerData);
+    };
+  }
+
+  private static Owner getOwner(OwnerReference ownerRef) {
+    return owners.get(ownerRef.id());
+  }
+
+  private long createAndSaveOwner(CheckinOwnerData ownerData) {
+    Owner owner = new Owner(getNextId(), ownerData.firstName(), ownerData.lastName());
+    owners.put(owner.id(), owner);
+    return owner.id();
   }
 
   @Override
@@ -33,20 +56,20 @@ public class GrandPetHotelController implements GrandPetHotel {
     return new GetPetsResponse(new ArrayList<>(petHotel.values()));
   }
 
-  private List<Pet> checkinPets(List<CheckinPetData> pets) {
-    return pets.stream().map(this::checkinPet).toList();
+  private List<Pet> checkinPets(long ownerId, List<CheckinPetData> pets) {
+    return pets.stream().map(p -> checkinPet(ownerId, p)).toList();
   }
 
-  private Pet checkinPet(CheckinPetData petData) {
-    Pet pet = createPet(petData);
+  private Pet checkinPet(long ownerId, CheckinPetData petData) {
+    Pet pet = createPet(ownerId, petData);
     petHotel.put(pet.id(), pet);
     return pet;
   }
 
-  private static Pet createPet(CheckinPetData petData) {
+  private static Pet createPet(long ownerId, CheckinPetData petData) {
     return switch (petData) {
-      case CheckinDogData dog -> new Dog(getNextPetId(), dog.name(), dog.chipNumber());
-      case CheckinFishData fish -> new Fish(getNextPetId(), fish.name());
+      case CheckinDogData dog -> new Dog(getNextId(), dog.name(), dog.chipNumber(), ownerId);
+      case CheckinFishData fish -> new Fish(getNextId(), fish.name(), ownerId);
     };
   }
 }
